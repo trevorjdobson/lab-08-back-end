@@ -16,8 +16,9 @@ CREATE TABLE locations (
 
 CREATE TABLE weathers ( 
     id SERIAL PRIMARY KEY, 
+    formatted_query VARCHAR(255),
     forecast VARCHAR(255), 
-    time VARCHAR(255), 
-    location_id INTEGER NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES locations (id)
+    time VARCHAR(255)
+    -- location_id INTEGER NOT NULL,
+    -- FOREIGN KEY (location_id) REFERENCES locations (id)
   );
