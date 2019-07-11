@@ -87,24 +87,76 @@ function searchLatLong(request, response) {
       }
     });
 }
+async function getData(table,formattedAddress,url){
 
-function searchWeather(request, response) {
+  let data = await client.query(`SELECT * FROM ${table} WHERE formatted_query=$1`, [formattedAddress])
+  let output = {};
+      if(data.rowCount === 0){
+        output.isInDatabase = false;
+        let apiResult = await superagent.get(url)
+        let forecastArr = apiResult.body.daily.data.map(el => {
+                return new FormattedDailyWeather(el);
+              })
+        output.data = forecastArr;
+        
+       }else{
+        output.isInDatabase = true;
+        output.data = data;
+      }
+      return output;
+}
+
+// function getData(table,formattedAddress,url){
+
+//   client.query(`SELECT * FROM ${table} WHERE search_query=$1`, [formattedAddress])
+//     .then(result=>{
+//       if(result.rowCount === 0){
+//         superagent.get(url)
+//         .then(apiResult=>{
+//           console.log('testing',test)
+//           return test;
+//         })
+//        }else{
+//         console.log('db result',result);
+//         return result;
+//       }
+//     })
+
+// }
+
+async function searchWeather(request, response) {
   // console.log(request.query.data.latitude)
   let lat = request.query.data.latitude;
   let long = request.query.data.longitude;
+  let formattedQuery = request.query.data.formatted_address,url;
   let weatherLocation = `${lat},${long}` || '37.8267,-122.4233';
-  const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${weatherLocation}`
-  superagent.get(url)
-    .then(result => {
-      // console.log(result.body.daily.data);
-      let forecastArr = result.body.daily.data.map(el => {
-        return new FormattedDailyWeather(el);
-      })
-      response.send(forecastArr);
-    }).catch(e => {
-      console.error(e);
-      response.status(500).send('Status 500')
+  const APIurl = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${weatherLocation}`;
+  let data = await getData('weathers',request.query.data.formatted_address,APIurl)
+  console.log(data);
+  if(data.isInDatabase === false){
+    data.data.forEach(el=>{
+      client.query(
+        `INSERT INTO weathers ( 
+      formatted_query,
+      forecast, 
+      time
+    ) VALUES ($1, $2, $3)`,
+        [formattedQuery, el.forecast, el.time]
+      )
     })
+  }
+  response.send(data);
+  // superagent.get(url)
+  //   .then(result => {
+  //     // console.log(result.body.daily.data);
+  //     let forecastArr = result.body.daily.data.map(el => {
+  //       return new FormattedDailyWeather(el);
+  //     })
+  //     response.send(forecastArr);
+  //   }).catch(e => {
+  //     console.error(e);
+  //     response.status(500).send('Status 500')
+  //   })
 }
 
 function searchEvents(request, response) {
