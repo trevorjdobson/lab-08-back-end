@@ -88,17 +88,17 @@ function searchLatLong(request, response) {
     });
 }
 async function getData(table,formattedAddress,url){
-
   let data = await client.query(`SELECT * FROM ${table} WHERE formatted_query=$1`, [formattedAddress])
+
   let output = {};
       if(data.rowCount === 0){
         output.isInDatabase = false;
         let apiResult = await superagent.get(url)
-        let forecastArr = apiResult.body.daily.data
+        let forecastArr = apiResult.body
         output.data = forecastArr;
-       }else{
+       }else{ 
         output.isInDatabase = true;
-        output.data = data;
+        output.data = data.rows;
       }
       return output;
 }
@@ -126,16 +126,14 @@ async function searchWeather(request, response) {
   let lat = request.query.data.latitude;
   let long = request.query.data.longitude;
   const formattedQuery = request.query.data.formatted_query;
-  console.log('129',request.query.data.formatted_query)
   let weatherLocation = `${lat},${long}` || '37.8267,-122.4233';
   const APIurl = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${weatherLocation}`;
   let data = await getData('weathers',request.query.data.formatted_address,APIurl)
   if(data.isInDatabase === false){
-    let forecastArr = data.data.map(el => {
+    let forecastArr = data.data.daily.data.map(el => {
       return new FormattedDailyWeather(el);
     })
     forecastArr.forEach(el=>{
-      console.log(formattedQuery)
       client.query(
         `INSERT INTO weathers ( 
       formatted_query,
@@ -145,9 +143,13 @@ async function searchWeather(request, response) {
         [formattedQuery, el.forecast, el.time]
       )
     })
+    response.send(forecastArr);
+  } else {
+    response.send(data.rows);
   }
-  response.send(data);
-  // superagent.get(url)
+}
+
+// superagent.get(url)
   //   .then(result => {
   //     // console.log(result.body.daily.data);
   //     let forecastArr = result.body.daily.data.map(el => {
@@ -158,24 +160,47 @@ async function searchWeather(request, response) {
   //     console.error(e);
   //     response.status(500).send('Status 500')
   //   })
-}
 
-function searchEvents(request, response) {
+async function searchEvents(request, response) {
   let lat = request.query.data.latitude;
   let long = request.query.data.longitude;
+  const formattedQuery = request.query.data.formatted_query;
   const url = `https://www.eventbriteapi.com/v3/events/search/?token=${process.env.EVENTBRITE_API_KEY}&location.latitude=${lat}&location.longitude=${long}`
-  superagent.get(url)
-    .then(result => {
-      let arrayOfFormattedEvents = result.body.events.map(item => {
-        return new FormattedEvent(item);
-      })
-
-      response.send(arrayOfFormattedEvents);
-
-    }).catch(e => {
-      console.log(e);
-      response.status(500).send('Status 500');
+  
+  let data = await getData('events',request.query.data.formatted_address, url)
+  if(data.isInDatabase === false){
+    let eventsArr = data.data.events.map(el => {
+      return new FormattedEvent(el);
     })
+    eventsArr.forEach(el=>{
+      client.query(
+        `INSERT INTO events ( 
+      formatted_query,
+      event_date, 
+      link,
+      summary,
+      name
+    ) VALUES ($1, $2, $3)`,
+        [formattedQuery, el.event_date, el.link, el.summary, el.name]
+      )
+    })
+    response.send(eventsArr);
+  } else {
+    response.send(data.rows);
+  }
+  
+  // superagent.get(url)
+  //   .then(result => {
+  //     let arrayOfFormattedEvents = result.body.events.map(item => {
+  //       return new FormattedEvent(item);
+  //     })
+
+  //     response.send(arrayOfFormattedEvents);
+
+  //   }).catch(e => {
+  //     console.log(e);
+  //     response.status(500).send('Status 500');
+  //   })
 }
 
 
