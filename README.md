@@ -115,15 +115,26 @@ Actual time needed to complete: 1hr
 
 
 ## Lab 8  
-Number and name of feature: ________________________________
+Number and name of feature: 1. Database
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: 45 mins
 
-Start time: _____
+Start time: 9:00am
 
-Finish time: _____
+Finish time: 9:47am
 
-Actual time needed to complete: _____
+Actual time needed to complete: 47 mins  
+
+Number and name of feature: 2. Server  
+
+Estimate of time needed to complete: 1hr  
+
+Start time: 9:48am  
+
+Finish time: 
+
+Actual time needed to complete:  
+
 
 ## Credits and Collaborations
 Kevin Couture  
