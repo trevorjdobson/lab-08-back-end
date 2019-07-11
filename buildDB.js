@@ -10,7 +10,7 @@ client.on('error', error=> {
 })
 
 function buildDb(){
-    client.query(`
+  client.query(`
     DROP TABLE IF EXISTS weathers;
 DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS events;
@@ -43,6 +43,6 @@ CREATE TABLE events (
 );
 
     `)
-console.log('buid complete');
+  console.log('buid complete');
 }
 buildDb();
