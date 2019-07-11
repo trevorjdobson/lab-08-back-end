@@ -94,11 +94,8 @@ async function getData(table,formattedAddress,url){
       if(data.rowCount === 0){
         output.isInDatabase = false;
         let apiResult = await superagent.get(url)
-        let forecastArr = apiResult.body.daily.data.map(el => {
-                return new FormattedDailyWeather(el);
-              })
+        let forecastArr = apiResult.body.daily.data
         output.data = forecastArr;
-        
        }else{
         output.isInDatabase = true;
         output.data = data;
@@ -128,13 +125,17 @@ async function searchWeather(request, response) {
   // console.log(request.query.data.latitude)
   let lat = request.query.data.latitude;
   let long = request.query.data.longitude;
-  let formattedQuery = request.query.data.formatted_address,url;
+  const formattedQuery = request.query.data.formatted_query;
+  console.log('129',request.query.data.formatted_query)
   let weatherLocation = `${lat},${long}` || '37.8267,-122.4233';
   const APIurl = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${weatherLocation}`;
   let data = await getData('weathers',request.query.data.formatted_address,APIurl)
-  console.log(data);
   if(data.isInDatabase === false){
-    data.data.forEach(el=>{
+    let forecastArr = data.data.map(el => {
+      return new FormattedDailyWeather(el);
+    })
+    forecastArr.forEach(el=>{
+      console.log(formattedQuery)
       client.query(
         `INSERT INTO weathers ( 
       formatted_query,
