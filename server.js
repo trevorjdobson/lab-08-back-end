@@ -103,24 +103,6 @@ async function getData(table,formattedAddress,url){
       return output;
 }
 
-// function getData(table,formattedAddress,url){
-
-//   client.query(`SELECT * FROM ${table} WHERE search_query=$1`, [formattedAddress])
-//     .then(result=>{
-//       if(result.rowCount === 0){
-//         superagent.get(url)
-//         .then(apiResult=>{
-//           console.log('testing',test)
-//           return test;
-//         })
-//        }else{
-//         console.log('db result',result);
-//         return result;
-//       }
-//     })
-
-// }
-
 async function searchWeather(request, response) {
   // console.log(request.query.data.latitude)
   let lat = request.query.data.latitude;
@@ -149,18 +131,6 @@ async function searchWeather(request, response) {
   }
 }
 
-// superagent.get(url)
-  //   .then(result => {
-  //     // console.log(result.body.daily.data);
-  //     let forecastArr = result.body.daily.data.map(el => {
-  //       return new FormattedDailyWeather(el);
-  //     })
-  //     response.send(forecastArr);
-  //   }).catch(e => {
-  //     console.error(e);
-  //     response.status(500).send('Status 500')
-  //   })
-
 async function searchEvents(request, response) {
   let lat = request.query.data.latitude;
   let long = request.query.data.longitude;
@@ -180,7 +150,7 @@ async function searchEvents(request, response) {
       link,
       summary,
       name
-    ) VALUES ($1, $2, $3)`,
+    ) VALUES ($1, $2, $3, $4, $5)`,
         [formattedQuery, el.event_date, el.link, el.summary, el.name]
       )
     })
@@ -189,20 +159,11 @@ async function searchEvents(request, response) {
     response.send(data.rows);
   }
   
-  // superagent.get(url)
-  //   .then(result => {
-  //     let arrayOfFormattedEvents = result.body.events.map(item => {
-  //       return new FormattedEvent(item);
-  //     })
-
-  //     response.send(arrayOfFormattedEvents);
-
   //   }).catch(e => {
   //     console.log(e);
   //     response.status(500).send('Status 500');
   //   })
 }
-
 
 //Starting Server
 app.listen(PORT, () => {
