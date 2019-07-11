@@ -60,32 +60,32 @@ function searchLatLong(request, response) {
   let locationName = request.query.data || 'seattle';
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${locationName}&key=${process.env.GEOCODE_API_KEY}`
 
-client.query(`SELECT * FROM locations WHERE search_query=$1`, [locationName])
-  .then(sqlResult => {
+  client.query(`SELECT * FROM locations WHERE search_query=$1`, [locationName])
+    .then(sqlResult => {
 
-    if(sqlResult.rowCount === 0){
-      superagent.get(url)
-      .then(result => {
-        let location = new FormattedLocation(locationName, result.body);
+      if(sqlResult.rowCount === 0){
+        superagent.get(url)
+          .then(result => {
+            let location = new FormattedLocation(locationName, result.body);
 
-        client.query(
-          `INSERT INTO locations (
+            client.query(
+              `INSERT INTO locations (
             search_query,
             formatted_query,
             latitude,
             longitude
           ) VALUES ($1, $2, $3, $4)`,
-            [location.search_query, location.formatted_query, location.latitude, location.longitude]
-        )
-        response.send(location);
-      }).catch(e => {
-        console.error(e);
-        response.status(500).send('Status 500')
-      })
-    } else {
-      response.send(sqlResult.rows[0]);
-    }
-  });
+              [location.search_query, location.formatted_query, location.latitude, location.longitude]
+            )
+            response.send(location);
+          }).catch(e => {
+            console.error(e);
+            response.status(500).send('Status 500')
+          })
+      } else {
+        response.send(sqlResult.rows[0]);
+      }
+    });
 }
 
 function searchWeather(request, response) {
