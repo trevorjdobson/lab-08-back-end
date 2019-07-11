@@ -17,6 +17,8 @@ Technology: VS code, node.js
 
 07-10-2019 12:03pm - Application has a fully functional API calls, with a GET route for the location and weather data. We deployed our application on Heroku. EventBrite API functionality added.  
 
+07-11-2019 3:30pm - Application data persists by adding postgresql database. Application now checks database before calling API. Application has a fully functional API calls, with a GET route for the location and weather data. We deployed our application on Heroku. EventBrite API functionality added. 
+
 
 ## Timeline
 
@@ -134,6 +136,16 @@ Start time: 9:48am
 Finish time: 12:34pm
 
 Actual time needed to complete:  ~3hrs
+
+Number and name of feature: 3. Deploy 
+
+Estimate of time needed to complete: 1hr  
+
+Start time: 2:00pm 
+
+Finish time: 3:24
+
+Actual time needed to complete:  1hr & 24 mins
 
 
 ## Credits and Collaborations
