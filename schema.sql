@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS weathers;
 DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS events;
 
 -- this.search_query = locationName;
 -- this.formatted_query = result.body.results[0].formatted_address;
@@ -28,7 +29,7 @@ CREATE TABLE events (
     formatted_query VARCHAR(255),
     event_date VARCHAR(255),
     name VARCHAR(255),
-    link VARCHAR(255),
-    summary VARCHAR(255)
+    link TEXT,
+    summary TEXT
 );
 
